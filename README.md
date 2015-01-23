@@ -18,6 +18,8 @@ Technology Stack
     1. [JSTL](https://jstl.java.net/)
 1. Test
     1. [TestNG](http://testng.org/doc/index.html)
+1. Logging
+    1. Log4j
 
 Local Usage
 --
