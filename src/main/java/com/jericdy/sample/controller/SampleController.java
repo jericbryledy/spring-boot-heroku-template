@@ -3,6 +3,10 @@ package com.jericdy.sample.controller;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+/**
+ *
+ * @author Jeric Bryle Sy Dy <jeric@jericbryledy.com>
+ */
 @RestController
 public class SampleController {
 
