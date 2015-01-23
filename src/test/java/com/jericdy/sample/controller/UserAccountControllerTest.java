@@ -4,7 +4,7 @@ import com.jericdy.sample.Application;
 import com.jericdy.sample.dto.AddUserAccountRequest;
 import com.jericdy.sample.dto.AddUserAccountResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.testng.AbstractTransactionalTestNGSpringContextTests;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
  *
  * @author Jeric Bryle Sy Dy <jeric@jericbryledy.com>
  */
-@ContextConfiguration(classes = Application.class)
+@SpringApplicationConfiguration(classes = Application.class)
 public class UserAccountControllerTest extends AbstractTransactionalTestNGSpringContextTests {
 
 	@Autowired
