@@ -46,7 +46,7 @@ or if you don't want to leave traces in your .m2 repo:
 ```
 mvn clean test spring-boot:run
 ```
-you should be able to access http://localhost:8080/ afterwards
+you should be able to access [http://localhost:8080/](http://localhost:8080/) afterwards
 
 
 **The Heroku way:**
@@ -57,5 +57,5 @@ or if you don't want to leave traces in your .m2 repo:
 ```
 mvn clean verify && foreman start
 ```
-you should be able to access http://localhost:5000/ afterwards
+you should be able to access [http://localhost:5000/](http://localhost:5000/) afterwards
 
