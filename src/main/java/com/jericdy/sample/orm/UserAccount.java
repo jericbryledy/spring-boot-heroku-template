@@ -38,7 +38,7 @@ public class UserAccount implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Basic(optional = false)
-	@Column(name = "id", nullable = false)
+	@Column(name = "id")
 	private Long id;
 	@Basic(optional = false)
 	@NotNull

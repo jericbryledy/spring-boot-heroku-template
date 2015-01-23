@@ -48,7 +48,7 @@ public class UserAccountController {
 		return response;
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	@RequestMapping(value = "/user", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody
 	public List<UserAccount> listUser() {

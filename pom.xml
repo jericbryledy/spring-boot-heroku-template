@@ -20,6 +20,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<jdk.version>1.7</jdk.version>
+
+		<heroku.url.pattern>^postgres://(\S+):(\S+)@(\S+):(\d+)/(\S+)$</heroku.url.pattern>
 	</properties>
 
 	<dependencies>
@@ -84,6 +86,11 @@
 				<filtering>true</filtering>
 			</resource>
 			<resource>
+				<directory>src/main/liquibase-resources</directory>
+				<targetPath>${project.build.directory}/liquibase</targetPath>
+				<filtering>true</filtering>
+			</resource>
+			<resource>
 				<directory>src/main/heroku-resources</directory>
 				<targetPath>${basedir}</targetPath>
 				<filtering>true</filtering>
@@ -91,6 +98,115 @@
 		</resources>
 
 		<plugins>
+			<!-- for parsing Heroku's DATABASE_URL -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>db-username</id>
+						<goals>
+							<goal>regex-property</goal>
+						</goals>
+						<configuration>
+							<name>db.username</name>
+							<value>${env.DATABASE_URL}</value>
+							<regex>${heroku.url.pattern}</regex>
+							<replacement>$1</replacement>
+							<failIfNoMatch>true</failIfNoMatch>
+						</configuration>
+					</execution>
+					<execution>
+						<id>db-password</id>
+						<goals>
+							<goal>regex-property</goal>
+						</goals>
+						<configuration>
+							<name>db.password</name>
+							<value>${env.DATABASE_URL}</value>
+							<regex>${heroku.url.pattern}</regex>
+							<replacement>$2</replacement>
+							<failIfNoMatch>true</failIfNoMatch>
+						</configuration>
+					</execution>
+					<execution>
+						<id>db-host</id>
+						<goals>
+							<goal>regex-property</goal>
+						</goals>
+						<configuration>
+							<name>db.host</name>
+							<value>${env.DATABASE_URL}</value>
+							<regex>${heroku.url.pattern}</regex>
+							<replacement>$3</replacement>
+							<failIfNoMatch>true</failIfNoMatch>
+						</configuration>
+					</execution>
+					<execution>
+						<id>db-port</id>
+						<goals>
+							<goal>regex-property</goal>
+						</goals>
+						<configuration>
+							<name>db.port</name>
+							<value>${env.DATABASE_URL}</value>
+							<regex>${heroku.url.pattern}</regex>
+							<replacement>$4</replacement>
+							<failIfNoMatch>true</failIfNoMatch>
+						</configuration>
+					</execution>
+					<execution>
+						<id>db-name</id>
+						<goals>
+							<goal>regex-property</goal>
+						</goals>
+						<configuration>
+							<name>db.name</name>
+							<value>${env.DATABASE_URL}</value>
+							<regex>${heroku.url.pattern}</regex>
+							<replacement>$5</replacement>
+							<failIfNoMatch>true</failIfNoMatch>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- run database update -->
+			<plugin>
+				<groupId>org.liquibase</groupId>
+				<artifactId>liquibase-maven-plugin</artifactId>
+				<version>3.3.0</version>
+				<configuration>
+					<contexts>${contexts}</contexts>
+					<driver>org.postgresql.Driver</driver>
+					<url>jdbc:postgresql://${db.host}:${db.port}/${db.name}</url>
+					<username>${db.username}</username>
+					<password>${db.password}</password>
+					<verbose>true</verbose>
+					<dropFirst>false</dropFirst>
+					<promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
+				</configuration>
+				<executions>
+					<execution>
+						<configuration>
+							<changeLogFile>${project.build.directory}/liquibase/db.changelog-master.xml</changeLogFile>
+						</configuration>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>update</goal>
+						</goals>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.postgresql</groupId>
+						<artifactId>postgresql</artifactId>
+						<version>9.3-1102-jdbc41</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
+			<!-- Spring Boot -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>

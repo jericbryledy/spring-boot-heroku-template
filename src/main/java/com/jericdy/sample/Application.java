@@ -2,19 +2,22 @@ package com.jericdy.sample;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Properties;
+import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.PostgreSQL9Dialect;
 import org.postgresql.ds.PGPoolingDataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 
 /**
@@ -24,19 +27,22 @@ import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 @Configuration
 @EnableAutoConfiguration
 @ComponentScan
+@PropertySource("application.properties")
 public class Application {
 
 	@Bean
-	public HikariDataSource hikariDataSource() throws URISyntaxException {
+	public HikariDataSource hikariDataSource(
+			@Value("${db.host}") String dbHost, @Value("${db.port}") String dbPort, @Value("${db.name}") String dbName,
+			@Value("${db.username}") String dbUsername, @Value("${db.password}") String dbPassword
+	) throws URISyntaxException {
 		HikariConfig config = new HikariConfig();
-		URI dbUri = new URI(System.getenv("DATABASE_URL"));
 
 		config.setDataSourceClassName(PGPoolingDataSource.class.getCanonicalName());
-		config.addDataSourceProperty("serverName", dbUri.getHost());
-		config.addDataSourceProperty("databaseName", dbUri.getPath().substring(1));
-		config.addDataSourceProperty("user", dbUri.getUserInfo().split(":")[0]);
-		config.addDataSourceProperty("password", dbUri.getUserInfo().split(":")[1]);
-		config.addDataSourceProperty("portNumber", dbUri.getPort());
+		config.addDataSourceProperty("serverName", dbHost);
+		config.addDataSourceProperty("databaseName", dbName);
+		config.addDataSourceProperty("user", dbUsername);
+		config.addDataSourceProperty("password", dbPassword);
+		config.addDataSourceProperty("portNumber", dbPort);
 
 		return new HikariDataSource(config);
 	}
@@ -47,13 +53,20 @@ public class Application {
 		sessionFactory.setDataSource(hikariDataSource);
 		Properties hibernateProperties = new Properties();
 		hibernateProperties.setProperty(Environment.DIALECT, PostgreSQL9Dialect.class.getCanonicalName());
-		hibernateProperties.setProperty(Environment.HBM2DDL_AUTO, "create");
 
 		sessionFactory.setHibernateProperties(hibernateProperties);
 
 		sessionFactory.setPackagesToScan("com.jericdy.sample.orm");
 
 		return sessionFactory;
+	}
+
+	// Bean needs to be named "transactionManager" to be picked used for @transational annotation
+	@Bean
+	public HibernateTransactionManager transactionManager(SessionFactory sessionFactory) {
+		HibernateTransactionManager transactionManager = new HibernateTransactionManager();
+		transactionManager.setSessionFactory(sessionFactory);
+		return transactionManager;
 	}
 
 	public static void main(String[] args) {
