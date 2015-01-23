@@ -205,7 +205,7 @@
 				<executions>
 					<execution>
 						<configuration>
-							<changeLogFile>${project.build.directory}/liquibase/db.changelog-master.xml</changeLogFile>
+							<changeLogFile>target/liquibase/db.changelog-master.xml</changeLogFile>
 						</configuration>
 						<phase>process-resources</phase>
 						<goals>
